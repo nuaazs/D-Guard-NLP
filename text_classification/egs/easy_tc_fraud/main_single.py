@@ -58,7 +58,7 @@ if __name__ == '__main__':
     if args.resume:
         checkpointer.recover_if_possible(device='cuda')
 
-    model, optimizer = train(config_class, pipeline, optimizer,criterion, lr_scheduler,train_loader, vali_loader,checkpointer,logger=logger)
+    model, optimizer = train(config_class, pipeline, optimizer,criterion, lr_scheduler,train_loader, vali_loader,test_loader,checkpointer,logger=logger)
     r = test(pipeline, test_loader)
 
     print(f">>> The accuracy of the model on the test set is: {r * 100:.2f}%")

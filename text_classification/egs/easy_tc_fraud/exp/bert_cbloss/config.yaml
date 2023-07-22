@@ -1,4 +1,4 @@
-batch_size: 256
+batch_size: 300
 check_data: false
 checkpointer:
   args:
@@ -11,11 +11,11 @@ checkpointer:
 classifier:
   args:
     input_dim: <embed_dim>
-    inter_dim: 512
-    num_blocks: 1
+    inter_dim: 1024
+    num_blocks: 3
     out_neurons: <num_class>
   obj: dguard_nlp.models.classify.CosineClassifier
-device: cuda:0
+device: cuda:7
 embed_dim: 768
 embedding_model:
   args:
@@ -25,13 +25,13 @@ epoch_counter:
   args:
     limit: <epochs>
   obj: dguard_nlp.utils.epoch.EpochCounter
-epochs: 200
-exp: bert_softlabel
+epochs: 205
+exp: bert_cbloss
 log_batch_freq: 600
 loss:
   args:
-    name: EntropyLoss
-  obj: dguard_nlp.loss.margin_loss.EntropyLoss
+    beta: 0.934
+  obj: dguard_nlp.loss.margin_loss.CBLoss
 lr: 0.0005
 lr_scheduler:
   args:
@@ -59,6 +59,6 @@ optimizer:
     params: null
   obj: transformers.AdamW
 seed: 123
-test_csv: null
-train_csv: ../../data/output.csv
-valid_interval: 1
+test_csv: ../../data/test.csv
+train_csv: ../../data/train.csv
+valid_interval: 5

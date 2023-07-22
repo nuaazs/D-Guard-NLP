@@ -5,17 +5,14 @@ import dguard_nlp
 from dguard_nlp.loss.margin_loss import get_projection
 from dguard_nlp.utils.utils import set_seed, get_logger, AverageMeters, ProgressMeter, accuracy
 import time
-# loss_func=torch.nn.CrossEntropyLoss()
-# loss_func require grad
-# loss_func.requires_grad=True
+
 @dguard_nlp.utils.timeit
-def train(config,model,optimizer,lr_scheduler,train_loader,vali_loader,logger,device):
+def train(config,model,optimizer,criterion,lr_scheduler,train_loader,vali_loader,test_loader,checkpointer,logger):
+    device = config.device
     model.to(device)
-    epochs = config['epochs']
-    valid_interval = config['valid_interval']
-    loss_func = get_projection(config)
-    
-    
+    epochs = config.epochs
+    valid_interval = config.valid_interval
+
     for epoch in range(epochs):
         train_stats = AverageMeters()
         train_stats.add('Time', ':6.3f')
@@ -41,7 +38,7 @@ def train(config,model,optimizer,lr_scheduler,train_loader,vali_loader,logger,de
             labels = torch.tensor(labels).to(next(model.parameters()).device)
             # labels.to(next(model.parameters()).device)
             out=model(data) # [batch_size,num_class]
-            loss=loss_func(out.to(device),labels)
+            loss=criterion.forward(out.to(device),labels)
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
@@ -52,19 +49,20 @@ def train(config,model,optimizer,lr_scheduler,train_loader,vali_loader,logger,de
             pbar.set_postfix(Loss=loss.item(),ACC=acc, refresh=False)        
 
             # recording
-            train_stats.update('Loss', loss.item(), data.size(0))
-            train_stats.update('Acc@1', acc.item(), data.size(0))
+            train_stats.update('Loss', loss.item(), labels.size(0))
+            train_stats.update('Acc@1', acc, labels.size(0))
             train_stats.update('Lr', optimizer.param_groups[0]["lr"])
             # train_stats.update('Margin', margin_scheduler.get_margin())
             train_stats.update('Time', time.time() - end)
 
-            if rank == 0 and i % config.log_batch_freq == 0:
+            if i % config.log_batch_freq == 0:
                 logger.info(progress.display(i))
 
             end = time.time()
 
         if epoch%valid_interval==0:
             # start valid
+            checkpointer.save_checkpoint(epoch=epoch)
             model.eval()
             correct = 0
             total = 0
@@ -75,6 +73,16 @@ def train(config,model,optimizer,lr_scheduler,train_loader,vali_loader,logger,de
                 correct += (out.cpu() == labels).sum().item()
                 total += len(labels)
             acc_valid = correct / total
-            logger.info(f">>> Epoch {epoch} - Val Loss: {loss.item()} - Val ACC: {acc_valid}")
 
+            correct = 0
+            total = 0
+            for i,(data,labels) in enumerate(test_loader):
+                with torch.no_grad():
+                    out=model(data)
+                out = out.argmax(dim=1)
+                correct += (out.cpu() == labels).sum().item()
+                total += len(labels)
+            acc_test = correct / total
+            logger.info(f">>> Epoch {epoch} - Val ACC: {acc_valid} - Test ACC: {acc_test}")
+            logger.info(f">>> Epoch {epoch} - Val ACC: {acc_valid} - Test ACC: {acc_test}")
     return model,optimizer

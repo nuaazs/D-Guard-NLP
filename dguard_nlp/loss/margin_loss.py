@@ -309,6 +309,48 @@ class EntropyLoss(nn.Module):
     def update(self, margin=None):
         pass
 
+class FocalLoass(nn.Module):
+    # Focal Loss based on paper "Focal Loss for Dense Object Detection"
+    # https://arxiv.org/pdf/1708.02002.pdf
+    def __init__(self, gamma=2, alpha=0.25, **kwargs):
+        super(FocalLoass, self).__init__()
+        self.gamma = gamma
+        self.alpha = alpha
+        self.criterion = nn.CrossEntropyLoss()
+
+    def forward(self, x, label):
+        # x : [batch, numclasses].
+        # label : [batch, ].
+        logpt = -self.criterion(x, label)
+        pt = torch.exp(logpt)
+        loss = -((1 - pt)**self.gamma) * logpt
+        return loss
+
+    def update(self, margin=None):
+        pass
+
+class CBLoss(nn.Module):
+    # Class-Balanced Loss Based on Effective Number of Samples
+    # https://arxiv.org/pdf/1901.05555.pdf
+    # class number = 2
+    def __init__(self, beta=0.9999, gamma=2, **kwargs):
+        super(CBLoss, self).__init__()
+        self.beta = beta
+        self.gamma = gamma
+        self.criterion = nn.CrossEntropyLoss()
+
+    def forward(self, x, label):
+        # x : [batch, numclasses].
+        # label : [batch, ].
+        label = label.unsqueeze(1)
+        label_one_hot = torch.zeros(x.size()).type_as(x)
+        label_one_hot.scatter_(1, label, 1)
+        label_one_hot = label_one_hot * self.beta + (1 - self.beta) * 1 / x.size(
+            1)
+        label_one_hot = label_one_hot * (x.size(1) - 1) / label_one_hot.sum(1,
+                                                                          keepdim=True)
+        loss = self.criterion(x * label_one_hot, label.squeeze(1))
+        return loss
 
 class ArcMarginProduct_intertopk_subcenter(nn.Module):
     r"""Implement of large margin arc distance with intertopk and subcenter:

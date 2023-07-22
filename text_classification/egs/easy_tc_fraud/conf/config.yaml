@@ -1,16 +1,16 @@
-exp: bert_softlabel
-epochs: 200
+exp: bert_cbloss
+epochs: 205
 seed: 123
-device: cuda:0
+device: cuda:7
 
 # DATA
-train_csv: ../../data/output.csv
-test_csv: null
-batch_size: 256
+train_csv: ../../data/train.csv
+test_csv: ../../data/test.csv
+batch_size: 300
 check_data: false
 
 # FREQ
-valid_interval: 1
+valid_interval: 5
 log_batch_freq: 600
 
 # LR
@@ -60,8 +60,8 @@ classifier:
   obj: dguard_nlp.models.classify.CosineClassifier
   args:
     input_dim: <embed_dim>
-    num_blocks: 1
-    inter_dim: 512
+    num_blocks: 3
+    inter_dim: 1024
     out_neurons: <num_class>
 
 # classifier:
@@ -91,6 +91,6 @@ lr_scheduler:
     step_per_epoch:
 
 loss:
-  obj: dguard_nlp.loss.margin_loss.EntropyLoss
+  obj: dguard_nlp.loss.margin_loss.CBLoss
   args:
-    name: EntropyLoss
+    beta: 0.934

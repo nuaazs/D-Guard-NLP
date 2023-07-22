@@ -23,6 +23,8 @@ def get_dataframe(config):
     if test_csv:
         test_df = pd.read_csv(test_csv)
         X_test, y_test = test_df['sentence'].values, test_df['label'].values
+        X_train,y_train = train_df['sentence'].values, train_df['label'].values
+        X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, train_size=0.8, random_state=100)
     else:
         X_train, X_test, y_train, y_test = train_test_split(train_df['sentence'].values,
                                                         train_df['label'].values,

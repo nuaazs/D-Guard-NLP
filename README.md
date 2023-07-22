@@ -16,6 +16,11 @@
 ## Purpose
 D-Guard-NLP is an anti-fraud text classification project that leverages NLP techniques, specifically BERT-based models, for text classification. The main objective of this project is to develop a system capable of identifying fraudulent texts and classifying them into specific categories. The system focuses on the detection and classification of fraud-related phone call texts.
 
+## 🔥 Updates
+1. Added CBLoss & Focal Loss: Incorporated CBLoss and Focal Loss functions. These loss functions help in handling class imbalance and focusing on hard examples during the training process.
+2. Added Sphere2 & AAM-sofxmax & AM-softmax: In addition to the existing models, we have introduced Sphere2, AAM-softmax, and AM-softmax as alternative architectures for the BERT-based models. These architectures enhance the discriminative power of the models and improve their ability to capture subtle differences in fraudulent text patterns.
+3. Added Large Margin Fine-tuning: To enhance the model's ability to separate different classes.
+
 ## Project Overview
 The D-Guard-NLP project comprises several key components:
 
