@@ -72,6 +72,14 @@ classifier:
 #     inter_dim: 512
 #     out_neurons: <num_class>
 
+# classifier:
+#   obj: dguard_nlp.models.classify.
+#   args:
+#     input_dim: <embed_dim>
+#     num_blocks: 0
+#     inter_dim: 512
+#     out_neurons: <num_class>
+
 lr_scheduler:
   obj: dguard_nlp.process.scheduler.WarmupCosineScheduler
   args:
