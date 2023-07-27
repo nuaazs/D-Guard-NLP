@@ -1,0 +1,8 @@
+train_csv: ../../data/weibo_senti_100k_sentence.csv
+test_csv: null
+batch_size: 1
+check_data: false
+epochs: 100
+valid_interval: 1
+lr: 0.0001
+optimizer: AdamW
