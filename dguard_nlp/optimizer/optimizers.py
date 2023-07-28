@@ -1,6 +1,8 @@
 
 from transformers import AdamW
 
-def get_optimizer(name,model,lr=1e-4):
+def get_optimizer(config,model):
+    learning_rate = config['lr']
+    name = config['optimizer']
     if name == "AdamW":
-        return AdamW(model.parameters(),lr=lr)
+        return AdamW(model.parameters(),lr=learning_rate)

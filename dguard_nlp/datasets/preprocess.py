@@ -5,8 +5,11 @@ from sklearn.model_selection import train_test_split
 from dguard_nlp.datasets.dataset import TCDataset
 from torch.utils.data import Dataset, DataLoader
 
-def get_dataframe(train_csv,test_csv,batch_size = 32,check_data=False):
-
+def get_dataframe(config):
+    train_csv = config['train_csv']
+    test_csv = config['test_csv']
+    batch_size = config['batch_size']
+    check_data = config['check_data']
     # df = pd.read_csv(filepath, encoding="utf8")
     # df.insert(2, 'sentence', "") 
     # for i in range(len(df)):
