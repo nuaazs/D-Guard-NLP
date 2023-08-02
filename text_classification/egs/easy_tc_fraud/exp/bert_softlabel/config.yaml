@@ -1,0 +1,59 @@
+batch_size: 256
+check_data: false
+checkpointer:
+  args:
+    checkpoints_dir: <exp_dir>/models
+    recoverables:
+      classifier: <classifier>
+      embedding_model: <embedding_model>
+      epoch_counter: <epoch_counter>
+  obj: dguard_nlp.utils.checkpoint.Checkpointer
+class_num: 2
+device: cuda:0
+easy_margin: false
+embed_dim: 768
+epochs: 200
+exp: bert_softlabel
+inter_dim: 512
+loss:
+  args:
+    easy_margin: false
+    margin: 0.2
+    scale: 32.0
+  obj: dguard_nlp.loss.margin_loss.ArcMarginLoss
+lr: 0.0005
+lr_scheduler:
+  args:
+    fix_epoch: <num_epoch>
+    max_lr: <lr>
+    min_lr: <min_lr>
+    optimizer: <optimizer>
+    step_per_epoch: null
+    warmup_epoch: 5
+  obj: dguard_nlp.process.scheduler.WarmupCosineScheduler
+margin_scheduler:
+  args:
+    criterion: <loss>
+    final_margin: 0.2
+    fix_epoch: 25
+    increase_start_epoch: 15
+    initial_margin: 0.0
+    step_per_epoch: null
+  obj: dguard_nlp.process.scheduler.MarginScheduler
+min_lr: 5.0e-05
+num_class: 2
+num_epoch: <epochs>
+optimizer:
+  args:
+    params:
+      lr: <lr>
+      momentum: 0.9
+      nesterov: true
+      weight_decay: 0.0001
+  obj: torch.optim.SGD
+project_type: LabelSmooth
+scale: 32.0
+seed: 123
+test_csv: null
+train_csv: ../../data/output.csv
+valid_interval: 1

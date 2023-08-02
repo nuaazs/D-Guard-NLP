@@ -1,8 +1,67 @@
-train_csv: ../../data/weibo_senti_100k_sentence.csv
+train_csv: ../../data/output.csv
 test_csv: null
-batch_size: 1
+batch_size: 256
 check_data: false
-epochs: 100
+epochs: 200
+num_epoch: <epochs>
 valid_interval: 1
-lr: 0.0001
-optimizer: AdamW
+# lr: 0.0001
+class_num: 2
+inter_dim: 512
+# optimizer: AdamW
+seed: 123
+device: cuda:0
+exp: bert_softlabel
+min_lr: 0.00005
+lr: 0.0005
+
+optimizer:
+  obj: torch.optim.SGD
+  args:
+    params:
+      lr: <lr>
+      momentum: 0.9
+      nesterov: True
+      weight_decay: 0.0001
+
+lr_scheduler:
+  obj: dguard_nlp.process.scheduler.WarmupCosineScheduler
+  args:
+    optimizer: <optimizer>
+    min_lr: <min_lr>
+    max_lr: <lr>
+    warmup_epoch: 5
+    fix_epoch: <num_epoch>
+    step_per_epoch:
+
+loss:
+  obj: dguard_nlp.loss.margin_loss.ArcMarginLoss
+  args:
+    scale: 32.0
+    margin: 0.2
+    easy_margin: False
+
+margin_scheduler:
+  obj: dguard_nlp.process.scheduler.MarginScheduler
+  args:
+    criterion: <loss>
+    initial_margin: 0.0
+    final_margin: 0.2
+    increase_start_epoch: 15
+    fix_epoch: 25
+    step_per_epoch:
+
+checkpointer:
+  obj: dguard_nlp.utils.checkpoint.Checkpointer
+  args:
+    checkpoints_dir: <exp_dir>/models
+    recoverables:
+      embedding_model: <embedding_model>
+      classifier: <classifier>
+      epoch_counter: <epoch_counter>
+
+project_type: LabelSmooth
+embed_dim: 768
+scale: 32.0
+easy_margin: False
+num_class: 2
