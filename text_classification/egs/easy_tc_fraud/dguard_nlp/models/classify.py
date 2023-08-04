@@ -43,7 +43,7 @@ class CosineClassifier(nn.Module):
 class LinearClassifier(nn.Module):
     def __init__(
         self,
-        input_dim768,
+        input_dim=768,
         num_blocks=3,
         inter_dim=512,
         out_neurons=1000,

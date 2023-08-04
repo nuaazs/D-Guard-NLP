@@ -297,6 +297,7 @@ class SphereFace2(nn.Module):
 
 class EntropyLoss(nn.Module):
     def __init__(self,**kwargs):
+        # CrossEntropyLoss
         super(EntropyLoss, self).__init__()
         self.criterion = nn.CrossEntropyLoss()
 

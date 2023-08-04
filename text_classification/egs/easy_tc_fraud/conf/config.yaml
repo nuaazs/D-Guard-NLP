@@ -1,45 +1,31 @@
+exp: bert_softlabel
+epochs: 200
+seed: 123
+device: cuda:0
+
+# DATA
 train_csv: ../../data/output.csv
 test_csv: null
 batch_size: 256
 check_data: false
-epochs: 200
-num_epoch: <epochs>
+
+# FREQ
 valid_interval: 1
-# lr: 0.0001
-class_num: 2
-inter_dim: 512
-# optimizer: AdamW
-seed: 123
-device: cuda:0
-exp: bert_softlabel
+log_batch_freq: 600
+
+# LR
 min_lr: 0.00005
 lr: 0.0005
 
+# BERT
+embed_dim: 768
+num_class: 2
+
 optimizer:
-  obj: torch.optim.SGD
+  obj: transformers.AdamW
   args:
     params:
-      lr: <lr>
-      momentum: 0.9
-      nesterov: True
-      weight_decay: 0.0001
-
-lr_scheduler:
-  obj: dguard_nlp.process.scheduler.WarmupCosineScheduler
-  args:
-    optimizer: <optimizer>
-    min_lr: <min_lr>
-    max_lr: <lr>
-    warmup_epoch: 5
-    fix_epoch: <num_epoch>
-    step_per_epoch:
-
-loss:
-  obj: dguard_nlp.loss.margin_loss.ArcMarginLoss
-  args:
-    scale: 32.0
-    margin: 0.2
-    easy_margin: False
+    lr: <lr>
 
 margin_scheduler:
   obj: dguard_nlp.process.scheduler.MarginScheduler
@@ -51,17 +37,52 @@ margin_scheduler:
     fix_epoch: 25
     step_per_epoch:
 
+epoch_counter:
+  obj: dguard_nlp.utils.epoch.EpochCounter
+  args:
+    limit: <epochs>
+
 checkpointer:
   obj: dguard_nlp.utils.checkpoint.Checkpointer
   args:
-    checkpoints_dir: <exp_dir>/models
+    checkpoints_dir: <exp>/models
     recoverables:
       embedding_model: <embedding_model>
       classifier: <classifier>
       epoch_counter: <epoch_counter>
 
-project_type: LabelSmooth
-embed_dim: 768
-scale: 32.0
-easy_margin: False
-num_class: 2
+embedding_model:
+  obj: dguard_nlp.models.bert.BertClassificationModel
+  args:
+    device: <device>
+
+classifier:
+  obj: dguard_nlp.models.classify.CosineClassifier
+  args:
+    input_dim: <embed_dim>
+    num_blocks: 1
+    inter_dim: 512
+    out_neurons: <num_class>
+
+# classifier:
+#   obj: dguard_nlp.models.classify.LinearClassifier
+#   args:
+#     input_dim: <embed_dim>
+#     num_blocks: 0
+#     inter_dim: 512
+#     out_neurons: <num_class>
+
+lr_scheduler:
+  obj: dguard_nlp.process.scheduler.WarmupCosineScheduler
+  args:
+    optimizer: <optimizer>
+    min_lr: <min_lr>
+    max_lr: <lr>
+    warmup_epoch: 5
+    fix_epoch: <epochs>
+    step_per_epoch:
+
+loss:
+  obj: dguard_nlp.loss.margin_loss.EntropyLoss
+  args:
+    name: EntropyLoss

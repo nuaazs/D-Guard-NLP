@@ -49,15 +49,20 @@ def deep_build(ins, config, build_space: set = None):
             ins[i] = deep_build(ins[i], config, build_space)
         return ins
     elif isinstance(ins, dict):
-        if 'obj' in ins and 'args' in ins: # return a instantiated module.
+        if 'obj' in ins: # return a instantiated module.
             obj = ins['obj']
-            args = ins['args']
-            assert isinstance(args, dict), f"Args for {obj} must be a dict."
-            args = deep_build(args, config, build_space)
+            if 'args' in ins:
+                args = ins['args']
+                assert isinstance(args, dict), f"Args for {obj} must be a dict."
+                args = deep_build(args, config, build_space)
 
-            module_cls = dynamic_import(obj)
-            mm = module_cls(**args)
-            return mm
+                module_cls = dynamic_import(obj)
+                mm = module_cls(**args)
+                return mm
+            else:
+                module_cls = dynamic_import(obj)
+                mm = module_cls()
+                return mm
         else:  # return a nomal dict.
             for k in ins:
                 ins[k] = deep_build(ins[k], config, build_space)

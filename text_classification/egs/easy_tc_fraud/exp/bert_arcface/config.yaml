@@ -24,7 +24,7 @@ loss:
 lr: 0.0001
 lr_scheduler:
   args:
-    fix_epoch: <num_epoch>
+    fix_epoch: <epochs>
     max_lr: <lr>
     min_lr: <min_lr>
     optimizer: <optimizer>

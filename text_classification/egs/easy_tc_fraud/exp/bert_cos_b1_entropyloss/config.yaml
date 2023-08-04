@@ -2,29 +2,40 @@ batch_size: 256
 check_data: false
 checkpointer:
   args:
-    checkpoints_dir: <exp_dir>/models
+    checkpoints_dir: <exp>/models
     recoverables:
       classifier: <classifier>
       embedding_model: <embedding_model>
       epoch_counter: <epoch_counter>
   obj: dguard_nlp.utils.checkpoint.Checkpointer
-class_num: 2
+classifier:
+  args:
+    input_dim: <embed_dim>
+    inter_dim: 512
+    num_blocks: 1
+    out_neurons: <num_class>
+  obj: dguard_nlp.models.classify.CosineClassifier
 device: cuda:0
-easy_margin: false
 embed_dim: 768
+embedding_model:
+  args:
+    device: <device>
+  obj: dguard_nlp.models.bert.BertClassificationModel
+epoch_counter:
+  args:
+    limit: <epochs>
+  obj: dguard_nlp.utils.epoch.EpochCounter
 epochs: 200
 exp: bert_softlabel
-inter_dim: 512
+log_batch_freq: 600
 loss:
   args:
-    easy_margin: false
-    margin: 0.2
-    scale: 32.0
-  obj: dguard_nlp.loss.margin_loss.ArcMarginLoss
+    name: EntropyLoss
+  obj: dguard_nlp.loss.margin_loss.EntropyLoss
 lr: 0.0005
 lr_scheduler:
   args:
-    fix_epoch: <num_epoch>
+    fix_epoch: <epochs>
     max_lr: <lr>
     min_lr: <min_lr>
     optimizer: <optimizer>
@@ -42,17 +53,11 @@ margin_scheduler:
   obj: dguard_nlp.process.scheduler.MarginScheduler
 min_lr: 5.0e-05
 num_class: 2
-num_epoch: <epochs>
 optimizer:
   args:
-    params:
-      lr: <lr>
-      momentum: 0.9
-      nesterov: true
-      weight_decay: 0.0001
-  obj: torch.optim.SGD
-project_type: LabelSmooth
-scale: 32.0
+    lr: <lr>
+    params: null
+  obj: transformers.AdamW
 seed: 123
 test_csv: null
 train_csv: ../../data/output.csv
