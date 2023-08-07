@@ -33,7 +33,7 @@ def train(config,model,optimizer,criterion,lr_scheduler,train_loader,vali_loader
         for i,(data,labels) in enumerate(pbar):
             train_stats.update('Data', time.time() - end)
             iter_num = (epoch-1)*len(train_loader) + i
-            lr_scheduler.step(iter_num)
+            # lr_scheduler.step(iter_num)
             # data.to(next(model.parameters()).device)
             labels = torch.tensor(labels).to(next(model.parameters()).device)
             # labels.to(next(model.parameters()).device)
